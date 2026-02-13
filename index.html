@@ -15,6 +15,7 @@
         }
         #scene-greeting-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* 请确保仓库里的 image_1.png 已经替换成了新的空白图片 */
             background: url('image_1.png') no-repeat center center;
             background-size: cover; z-index: 10; opacity: 0; transition: opacity 1s;
         }
@@ -24,37 +25,39 @@
             background-size: cover; z-index: 2; opacity: 0; transition: opacity 3s;
         }
 
-        /* --- 贺卡文字遮罩与排版 --- */
+        /* --- 贺卡文字排版 --- */
         #greeting-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 20; opacity: 0; transition: opacity 1s; pointer-events: none;
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 遮罩层：用于盖住图片原有的“2025新年快乐” */
-        .calligraphy-mask {
-            position: absolute; 
-            top: 48%; left: 52%; /* 对应原图文字位置 */
-            transform: translate(-50%, -50%) rotate(-5deg);
-            width: 280px; height: 380px;
-            /* 使用与纸张相近的米黄色进行遮盖 */
-            background: rgba(245, 235, 215, 0.95); 
-            filter: blur(8px); /* 边缘模糊处理，更自然 */
-            border-radius: 20px;
-        }
-
         /* 实际显示的祝福语 */
         .calligraphy-content {
             position: relative;
             z-index: 21;
-            transform: rotate(-5deg); /* 匹配贺卡倾斜角度 */
-            width: 220px;
+            /* 根据新图片调整了位置和角度 */
+            transform: translate(10px, -20px) rotate(-6deg);
+            width: 240px;
             text-align: center;
+            /* 优先使用书法字体 */
             font-family: "KaiTi", "STKaiti", "华文楷体", "楷体", serif;
-            color: #2c1a1a; /* 墨色 */
+            /* 修改为纯黑色 */
+            color: #000000;
         }
-        #cal-title { font-size: 1.6rem; margin-bottom: 15px; color: #4a3a3a; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px;}
-        #cal-body { font-size: 1.25rem; line-height: 1.8; letter-spacing: 2px; text-align: justify; }
+        #cal-title { 
+            font-size: 1.7rem; margin-bottom: 20px; 
+            /* 修改为纯黑色 */
+            color: #000000; 
+            font-weight: bold; 
+            border-bottom: 2px solid rgba(0,0,0,0.8); /* 加深下划线 */
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        #cal-body { 
+            font-size: 1.3rem; line-height: 1.8; letter-spacing: 2px; 
+            font-weight: bold;
+        }
 
         /* --- UI 交互层 --- */
         .ui-layer { 
@@ -107,7 +110,6 @@
 </div>
 
 <div id="greeting-container">
-    <div class="calligraphy-mask"></div>
     <div class="calligraphy-content">
         <div id="cal-title"></div>
         <div id="cal-body"></div>
