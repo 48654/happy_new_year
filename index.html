@@ -15,7 +15,6 @@
         }
         #scene-greeting-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 请确保仓库里的 image_1.png 已经替换成了新的空白图片 */
             background: url('image_1.png') no-repeat center center;
             background-size: cover; z-index: 10; opacity: 0; transition: opacity 1s;
         }
@@ -32,25 +31,20 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 实际显示的祝福语 */
         .calligraphy-content {
             position: relative;
             z-index: 21;
-            /* 根据新图片调整了位置和角度 */
             transform: translate(10px, -20px) rotate(-6deg);
             width: 240px;
             text-align: center;
-            /* 优先使用书法字体 */
             font-family: "KaiTi", "STKaiti", "华文楷体", "楷体", serif;
-            /* 修改为纯黑色 */
             color: #000000;
         }
         #cal-title { 
             font-size: 1.7rem; margin-bottom: 20px; 
-            /* 修改为纯黑色 */
             color: #000000; 
             font-weight: bold; 
-            border-bottom: 2px solid rgba(0,0,0,0.8); /* 加深下划线 */
+            border-bottom: 2px solid rgba(0,0,0,0.8);
             padding-bottom: 10px;
             display: inline-block;
         }
@@ -140,7 +134,6 @@
         const calTitle = document.getElementById('cal-title');
         const calBody = document.getElementById('cal-body');
 
-        // 注入完整祝福语
         if(rel === "同学") {
             calTitle.innerText = `${sn}同学：`;
             calBody.innerText = "山高水远，同窗情谊不减。祝你丙午年如骏马驰骋，前程广阔，常回青春里看看，也祝你万事顺意，阖家幸福。";
@@ -163,12 +156,12 @@
             document.getElementById('greeting-container').style.opacity = 1;
         }, 600);
 
-        // 停留 10 秒
+        // --- 核心修改：缩短停留时间为 2 秒 ---
         setTimeout(() => {
             document.getElementById('scene-greeting-bg').style.opacity = 0;
             document.getElementById('greeting-container').style.opacity = 0;
             document.getElementById('step2').classList.remove('hide');
-        }, 10600);
+        }, 2600); // 600ms 过渡时间 + 2000ms 停留时间
     }
 
     function createLantern(isMain, wishText = "") {
