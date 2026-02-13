@@ -7,26 +7,54 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
         
-        /* --- 背景场景层 --- */
-        /* 场景1：城市初始背景 */
+        /* --- 场景背景 --- */
         #scene-city {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: url('image_3.png') no-repeat center center;
-            background-size: cover; z-index: 1; transition: transform 6s ease-in, opacity 3s;
+            background-size: cover; z-index: 1; transition: transform 6s, opacity 3s;
         }
-        /* 场景2（新增）：中间祝福贺卡背景 */
         #scene-greeting-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 这里使用你新提供的图片名 */
             background: url('image_1.png') no-repeat center center;
-            background-size: cover; z-index: 10; opacity: 0; transition: opacity 1s ease-in-out;
+            background-size: cover; z-index: 10; opacity: 0; transition: opacity 1s;
         }
-        /* 场景3：最终星河背景 */
         #scene-galaxy {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: url('image_4.png') no-repeat center center;
-            background-size: cover; z-index: 2; opacity: 0; transition: opacity 3s ease-in-out;
+            background-size: cover; z-index: 2; opacity: 0; transition: opacity 3s;
         }
+
+        /* --- 贺卡文字遮罩与排版 --- */
+        #greeting-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 20; opacity: 0; transition: opacity 1s; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* 遮罩层：用于盖住图片原有的“2025新年快乐” */
+        .calligraphy-mask {
+            position: absolute; 
+            top: 48%; left: 52%; /* 对应原图文字位置 */
+            transform: translate(-50%, -50%) rotate(-5deg);
+            width: 280px; height: 380px;
+            /* 使用与纸张相近的米黄色进行遮盖 */
+            background: rgba(245, 235, 215, 0.95); 
+            filter: blur(8px); /* 边缘模糊处理，更自然 */
+            border-radius: 20px;
+        }
+
+        /* 实际显示的祝福语 */
+        .calligraphy-content {
+            position: relative;
+            z-index: 21;
+            transform: rotate(-5deg); /* 匹配贺卡倾斜角度 */
+            width: 220px;
+            text-align: center;
+            font-family: "KaiTi", "STKaiti", "华文楷体", "楷体", serif;
+            color: #2c1a1a; /* 墨色 */
+        }
+        #cal-title { font-size: 1.6rem; margin-bottom: 15px; color: #4a3a3a; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px;}
+        #cal-body { font-size: 1.25rem; line-height: 1.8; letter-spacing: 2px; text-align: justify; }
 
         /* --- UI 交互层 --- */
         .ui-layer { 
@@ -35,59 +63,18 @@
             background: rgba(0, 0, 0, 0.4); transition: opacity 1s;
         }
         .card { 
-            background: rgba(60, 10, 0, 0.9); padding: 30px; border-radius: 15px; 
+            background: rgba(80, 20, 0, 0.92); padding: 30px; border-radius: 15px; 
             border: 2px solid #ffd700; text-align: center; width: 85%; max-width: 320px; color: #fff;
-            box-shadow: 0 0 25px rgba(0,0,0,0.9); backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
         }
-        input, select { 
-            width: 100%; padding: 12px; margin: 12px 0; border-radius: 8px;
-            border: 1px solid #ffd700; font-size: 16px; box-sizing: border-box;
-            background: #fff !important; color: #000 !important;
-        }
-        button { 
-            background: linear-gradient(to bottom, #ffd700, #ff8c00); color: #8b0000; 
-            border: none; padding: 12px 40px; border-radius: 30px; font-weight: bold; font-size: 18px;
-        }
-
-        /* --- 新增：中间祝福语的书法样式 --- */
-        #greeting-calligraphy {
-            position: fixed; top: 45%; left: 55%; /* 根据图片调整位置，略微偏右偏上 */
-            transform: translate(-50%, -50%) rotate(-6deg); /* 轻微旋转以匹配图片视角 */
-            z-index: 20; /* 在贺卡背景之上 */
-            text-align: center;
-            /* 尝试使用毛笔/楷体字体栈 */
-            font-family: "KaiTi", "STKaiti", "华文楷体", "楷体", cursive, serif;
-            color: #2c2c2c; /* 接近墨水的深灰色 */
-            opacity: 0; transition: opacity 1s; pointer-events: none;
-        }
-        /* 模拟图片中较小的上层文字 */
-        #calligraphy-title {
-            font-size: 2rem; margin-bottom: 15px; color: #555;
-        }
-        /* 模拟图片中较大的下层文字 */
-        #calligraphy-msg {
-            font-size: 3rem; font-weight: bold; line-height: 1.3;
-        }
+        input, select { width: 100%; padding: 12px; margin: 12px 0; border-radius: 8px; border: 1px solid #ffd700; font-size: 16px; box-sizing: border-box; background: #fff !important; color: #000 !important; }
+        button { background: linear-gradient(to bottom, #ffd700, #ff8c00); color: #8b0000; border: none; padding: 12px 40px; border-radius: 30px; font-weight: bold; font-size: 18px; }
 
         /* --- 动画元素 --- */
-        .lantern {
-            position: absolute; z-index: 50; 
-            background: rgba(255, 180, 0, 0.95);
-            border-radius: 8px 8px 4px 4px;
-            box-shadow: 0 0 30px #ff4500, inset 0 0 15px #ffd700;
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 6.5s cubic-bezier(0.4, 0, 1, 1), opacity 3s;
-        }
-        .wish-text {
-            position: absolute; bottom: -45px; white-space: nowrap;
-            color: #fff; font-weight: bold; text-shadow: 0 0 10px #ffd700;
-            font-size: 14px; opacity: 0; transition: opacity 1s;
-        }
-        #final-text { 
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; width: 95%; opacity: 0; z-index: 1000;
-            transition: opacity 2.5s ease-in; pointer-events: none;
-        }
+        .lantern { position: absolute; z-index: 50; background: rgba(255, 180, 0, 0.95); border-radius: 8px 8px 4px 4px; box-shadow: 0 0 30px #ff4500, inset 0 0 15px #ffd700; transition: transform 6.5s linear, opacity 3s; }
+        .wish-text { position: absolute; bottom: -45px; white-space: nowrap; color: #fff; font-weight: bold; text-shadow: 0 0 10px #ffd700; font-size: 14px; opacity: 0; transition: opacity 1s; }
+        
+        #final-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 95%; opacity: 0; z-index: 1000; transition: opacity 2.5s; pointer-events: none; }
         .highlight-line {
             color: #FFD700 !important; font-size: 1.8rem; font-weight: 900; margin: 15px 0;
             text-shadow: 0 0 15px #ff0000, 0 0 25px #ff0000, 3px 3px 5px #000 !important;
@@ -95,7 +82,7 @@
         }
         @keyframes text-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
         .hide { opacity: 0; pointer-events: none; }
-        .gone { display: none !important; } /* 用于彻底移除 Step1 */
+        .gone { display: none !important; }
     </style>
 </head>
 <body>
@@ -119,16 +106,19 @@
     </div>
 </div>
 
-<div id="greeting-calligraphy">
-    <div id="calligraphy-title"></div>
-    <div id="calligraphy-msg"></div>
+<div id="greeting-container">
+    <div class="calligraphy-mask"></div>
+    <div class="calligraphy-content">
+        <div id="cal-title"></div>
+        <div id="cal-body"></div>
+    </div>
 </div>
 
 <div id="step2" class="ui-layer hide">
     <div class="card">
-        <h3 style="color:#ffd700; margin-bottom: 15px;">✨ 许愿时刻 ✨</h3>
-        <p style="color:#ffebcc; font-size:14px;">祝福已送达，现在写下你的愿望，<br>它将化作天灯飞向星河。</p>
-        <input type="text" id="wish-input" placeholder="在此输入愿望..." autocomplete="off" style="margin-top: 20px;">
+        <h3 style="color:#ffd700; margin:0;">✨ 许愿时刻 ✨</h3>
+        <p style="color:#ffebcc; font-size:14px; margin-top:10px;">愿这份祝福伴你左右。<br>现在，写下你的2026愿望：</p>
+        <input type="text" id="wish-input" placeholder="愿望会化作天灯..." autocomplete="off">
         <button onclick="launch()">放飞愿望</button>
     </div>
 </div>
@@ -140,50 +130,43 @@
 </div>
 
 <script>
-    const FORMSPREE_ID = ""; 
-
-    // 新的流程控制函数
     function startGreetingFlow() {
         const sn = document.getElementById('surname').value.trim();
         const rel = document.getElementById('relation').value;
         if(!sn || !rel) return alert("请补充完整信息~");
 
-        // 1. 生成祝福语，但这次是填充到新的书法容器中
-        const title = document.getElementById('calligraphy-title');
-        const msg = document.getElementById('calligraphy-msg');
+        const calTitle = document.getElementById('cal-title');
+        const calBody = document.getElementById('cal-body');
 
+        // 注入完整祝福语
         if(rel === "同学") {
-            title.innerText = `${sn}同学：`;
-            msg.innerHTML = "同窗情谊深，<br>前程皆似锦。";
+            calTitle.innerText = `${sn}同学：`;
+            calBody.innerText = "山高水远，同窗情谊不减。祝你丙午年如骏马驰骋，前程广阔，常回青春里看看，也祝你万事顺意，阖家幸福。";
         } else if(rel === "老师") {
-            title.innerText = `${sn}老师：`;
-            msg.innerHTML = "师恩深似海，<br>桃李满天下。";
+            calTitle.innerText = `${sn}老师：`;
+            calBody.innerText = "教诲如春风，师恩深似海。愿您新的一年身体健康，万事顺意，阖家幸福。";
         } else if(rel === "朋友") {
-            title.innerText = `挚友 ${sn}：`;
-            msg.innerHTML = "策马扬鞭行，<br>自由且坦荡。";
+            calTitle.innerText = `友人 ${sn}：`;
+            calBody.innerText = "即使不常见面，也知你活得滚烫。愿你新岁继续策马扬鞭，自由坦荡，万事顺意，阖家幸福。";
         } else {
-            title.innerText = `致 ${sn}家长辈：`;
-            msg.innerHTML = "日日是好日，<br>岁岁皆平安。";
+            calTitle.innerText = `致 ${sn}家亲长：`;
+            calBody.innerText = "愿您新春身体硬朗，心中无事，眉间无霜，日日是好日，万事顺意，阖家幸福。";
         }
 
-        // 2. 隐藏 Step 1 UI
         document.getElementById('step1').classList.add('hide');
-        setTimeout(() => document.getElementById('step1').classList.add('gone'), 600);
-
-        // 3. 显示贺卡背景和书法文字
+        
         setTimeout(() => {
+            document.getElementById('step1').classList.add('gone');
             document.getElementById('scene-greeting-bg').style.opacity = 1;
-            document.getElementById('greeting-calligraphy').style.opacity = 1;
+            document.getElementById('greeting-container').style.opacity = 1;
         }, 600);
 
-        // 4. 核心改动：设置 10 秒定时器
+        // 停留 10 秒
         setTimeout(() => {
-            // 10秒后隐藏贺卡和文字
             document.getElementById('scene-greeting-bg').style.opacity = 0;
-            document.getElementById('greeting-calligraphy').style.opacity = 0;
-            // 显示 Step 2 愿望输入框
+            document.getElementById('greeting-container').style.opacity = 0;
             document.getElementById('step2').classList.remove('hide');
-        }, 10600); // 600ms 过渡 + 10000ms 等待
+        }, 10600);
     }
 
     function createLantern(isMain, wishText = "") {
@@ -193,12 +176,10 @@
         const startY = isMain ? window.innerHeight + 120 : Math.random() * window.innerHeight + 350;
         const sizeW = isMain ? 65 : 25 + Math.random() * 35;
         const sizeH = sizeW * 1.35;
-
         lantern.style.width = sizeW + 'px';
         lantern.style.height = sizeH + 'px';
         lantern.style.left = startX + 'px';
         lantern.style.top = startY + 'px';
-
         if(isMain) {
             const txt = document.createElement('div');
             txt.className = 'wish-text';
@@ -214,38 +195,22 @@
     function launch() {
         const wish = document.getElementById('wish-input').value.trim();
         if(!wish) return alert("写下愿望吧~");
-
-        // 发送数据
-        if(FORMSPREE_ID) {
-            fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: document.getElementById('surname').value, wish: wish })
-            });
-        }
-
         document.getElementById('step2').classList.add('hide');
-
         const lanterns = [];
         for(let i=0; i<20; i++) lanterns.push(createLantern(false));
         const mainLantern = createLantern(true, wish);
-
         setTimeout(() => {
             document.getElementById('scene-city').style.transform = "translateY(130px) scale(1.05)";
             document.getElementById('scene-city').style.opacity = "0.15";
-
             [...lanterns, mainLantern].forEach(l => {
                 const speed = l.id === "main-lantern" ? 6.5 : 4.5 + Math.random() * 3.5;
-                l.style.transition = `transform ${speed}s linear, opacity ${speed}s`;
-                l.style.transform = `translateY(-${window.innerHeight + 450}px)`;
+                l.style.transform = `translateY(-${window.innerHeight + 500}px)`;
             });
         }, 100);
-
         setTimeout(() => {
             document.getElementById('scene-galaxy').style.opacity = "1";
             document.getElementById('scene-city').style.opacity = "0";
         }, 3800);
-
         setTimeout(() => {
             document.getElementById('final-text').style.opacity = "1";
         }, 6400);
