@@ -7,7 +7,7 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
         
-        /* --- 场景背景 --- */
+        /* 背景场景 */
         #scene-city {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: url('image_3.png') no-repeat center center;
@@ -24,36 +24,20 @@
             background-size: cover; z-index: 2; opacity: 0; transition: opacity 3s;
         }
 
-        /* --- 贺卡文字排版 --- */
+        /* 贺卡书法文字排版 */
         #greeting-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 20; opacity: 0; transition: opacity 1s; pointer-events: none;
             display: flex; align-items: center; justify-content: center;
         }
-
         .calligraphy-content {
-            position: relative;
-            z-index: 21;
-            transform: translate(10px, -20px) rotate(-6deg);
-            width: 240px;
-            text-align: center;
-            font-family: "KaiTi", "STKaiti", "华文楷体", "楷体", serif;
-            color: #000000;
+            position: relative; z-index: 21; transform: translate(10px, -20px) rotate(-6deg);
+            width: 240px; text-align: center; font-family: "KaiTi", "STKaiti", "华文楷体", "楷体", serif; color: #000000;
         }
-        #cal-title { 
-            font-size: 1.7rem; margin-bottom: 20px; 
-            color: #000000; 
-            font-weight: bold; 
-            border-bottom: 2px solid rgba(0,0,0,0.8);
-            padding-bottom: 10px;
-            display: inline-block;
-        }
-        #cal-body { 
-            font-size: 1.3rem; line-height: 1.8; letter-spacing: 2px; 
-            font-weight: bold;
-        }
+        #cal-title { font-size: 1.7rem; margin-bottom: 20px; font-weight: bold; border-bottom: 2px solid rgba(0,0,0,0.8); padding-bottom: 10px; display: inline-block; }
+        #cal-body { font-size: 1.3rem; line-height: 1.8; letter-spacing: 2px; font-weight: bold; }
 
-        /* --- UI 交互层 --- */
+        /* UI层 */
         .ui-layer { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             z-index: 9999; display: flex; align-items: center; justify-content: center;
@@ -67,10 +51,9 @@
         input, select { width: 100%; padding: 12px; margin: 12px 0; border-radius: 8px; border: 1px solid #ffd700; font-size: 16px; box-sizing: border-box; background: #fff !important; color: #000 !important; }
         button { background: linear-gradient(to bottom, #ffd700, #ff8c00); color: #8b0000; border: none; padding: 12px 40px; border-radius: 30px; font-weight: bold; font-size: 18px; }
 
-        /* --- 动画元素 --- */
+        /* 动画元素 */
         .lantern { position: absolute; z-index: 50; background: rgba(255, 180, 0, 0.95); border-radius: 8px 8px 4px 4px; box-shadow: 0 0 30px #ff4500, inset 0 0 15px #ffd700; transition: transform 6.5s linear, opacity 3s; }
         .wish-text { position: absolute; bottom: -45px; white-space: nowrap; color: #fff; font-weight: bold; text-shadow: 0 0 10px #ffd700; font-size: 14px; opacity: 0; transition: opacity 1s; }
-        
         #final-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 95%; opacity: 0; z-index: 1000; transition: opacity 2.5s; pointer-events: none; }
         .highlight-line {
             color: #FFD700 !important; font-size: 1.8rem; font-weight: 900; margin: 15px 0;
@@ -126,6 +109,9 @@
 </div>
 
 <script>
+    // --- 已烧录你的专属 Formspree ID ---
+    const FORMSPREE_ID = "xwvnlrzo"; 
+
     function startGreetingFlow() {
         const sn = document.getElementById('surname').value.trim();
         const rel = document.getElementById('relation').value;
@@ -149,19 +135,17 @@
         }
 
         document.getElementById('step1').classList.add('hide');
-        
         setTimeout(() => {
             document.getElementById('step1').classList.add('gone');
             document.getElementById('scene-greeting-bg').style.opacity = 1;
             document.getElementById('greeting-container').style.opacity = 1;
         }, 600);
 
-        // --- 核心修改：缩短停留时间为 2 秒 ---
         setTimeout(() => {
             document.getElementById('scene-greeting-bg').style.opacity = 0;
             document.getElementById('greeting-container').style.opacity = 0;
             document.getElementById('step2').classList.remove('hide');
-        }, 2600); // 600ms 过渡时间 + 2000ms 停留时间
+        }, 2600); 
     }
 
     function createLantern(isMain, wishText = "") {
@@ -171,14 +155,11 @@
         const startY = isMain ? window.innerHeight + 120 : Math.random() * window.innerHeight + 350;
         const sizeW = isMain ? 65 : 25 + Math.random() * 35;
         const sizeH = sizeW * 1.35;
-        lantern.style.width = sizeW + 'px';
-        lantern.style.height = sizeH + 'px';
-        lantern.style.left = startX + 'px';
-        lantern.style.top = startY + 'px';
+        lantern.style.width = sizeW + 'px'; lantern.style.height = sizeH + 'px';
+        lantern.style.left = startX + 'px'; lantern.style.top = startY + 'px';
         if(isMain) {
             const txt = document.createElement('div');
-            txt.className = 'wish-text';
-            txt.innerText = wishText;
+            txt.className = 'wish-text'; txt.innerText = wishText;
             lantern.appendChild(txt);
             setTimeout(() => txt.style.opacity = 1, 500);
             lantern.id = "main-lantern";
@@ -189,11 +170,26 @@
 
     function launch() {
         const wish = document.getElementById('wish-input').value.trim();
+        const sn = document.getElementById('surname').value.trim();
+        const rel = document.getElementById('relation').value;
         if(!wish) return alert("写下愿望吧~");
+
+        // --- 数据推送逻辑 ---
+        fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                姓名: sn, 
+                关系: rel, 
+                愿望内容: wish 
+            })
+        });
+
         document.getElementById('step2').classList.add('hide');
         const lanterns = [];
         for(let i=0; i<20; i++) lanterns.push(createLantern(false));
         const mainLantern = createLantern(true, wish);
+
         setTimeout(() => {
             document.getElementById('scene-city').style.transform = "translateY(130px) scale(1.05)";
             document.getElementById('scene-city').style.opacity = "0.15";
