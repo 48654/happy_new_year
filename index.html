@@ -2,196 +2,177 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 岁岁平安</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 祈愿天灯</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #0a0a0a; font-family: "Microsoft YaHei", sans-serif; color: #f1c40f; }
-        #canvas { position: absolute; top: 0; left: 0; z-index: 1; }
-        .ui-layer { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: rgba(0,0,0,0.4); transition: opacity 1s; }
-        .card { background: rgba(139, 0, 0, 0.9); padding: 30px; border-radius: 15px; border: 2px solid #f1c40f; text-align: center; box-shadow: 0 0 20px rgba(241, 196, 15, 0.3); width: 80%; max-width: 400px; }
-        input, select { width: 100%; padding: 12px; margin: 15px 0; border-radius: 5px; border: none; font-size: 16px; box-sizing: border-box; }
-        button { background: #f1c40f; color: #8b0000; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; font-size: 18px; cursor: pointer; transition: transform 0.2s; }
-        button:hover { transform: scale(1.05); }
-        #wish-text { position: absolute; color: #fff; text-shadow: 0 0 10px #f1c40f; font-size: 1.2rem; pointer-events: none; opacity: 0; text-align: center; width: 100%; }
-        .hide { opacity: 0; pointer-events: none; }
-        #final-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 90%; opacity: 0; transition: opacity 2s; z-index: 20; color: #ffd700; font-size: 1.5rem; text-shadow: 0 0 15px rgba(255,215,0,0.8); }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
+            background-color: #000; font-family: "PingFang SC", sans-serif;
+        }
+        /* 第一张背景图：城市万家灯火 */
+        #bg-city {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('image_a5bafc.jpg') no-repeat center center;
+            background-size: cover; z-index: 1; transition: opacity 3s;
+        }
+        /* 第二张背景图：璀璨星河 */
+        #bg-galaxy {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('image_a61855.jpg') no-repeat center center;
+            background-size: cover; z-index: 2; opacity: 0; transition: opacity 3s;
+        }
+
+        /* 修复输入框点击的关键：UI层必须是固定定位且z-index极高 */
+        .ui-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.4); pointer-events: auto;
+        }
+        .card { 
+            background: rgba(80, 20, 0, 0.85); 
+            padding: 30px; border-radius: 15px; border: 2px solid #ffd700;
+            text-align: center; width: 85%; max-width: 350px; color: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* 强制允许文本选择和点击，防止微信拦截键盘 */
+        input, select { 
+            width: 100%; padding: 14px; margin: 15px 0; border-radius: 8px;
+            border: 1px solid #ffd700; font-size: 16px; box-sizing: border-box;
+            background: #fff !important; color: #000 !important;
+            display: block; pointer-events: auto !important;
+            -webkit-user-select: text !important; 
+        }
+
+        button { 
+            background: #ffd700; color: #8b0000; border: none; padding: 12px 40px; 
+            border-radius: 30px; font-weight: bold; font-size: 18px; cursor: pointer;
+        }
+
+        /* 孔明灯与愿望星星动画 */
+        #user-lantern-container {
+            position: absolute; left: 50%; bottom: -300px; transform: translateX(-50%);
+            z-index: 50; display: flex; flex-direction: column; align-items: center;
+            transition: bottom 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        .lantern-body {
+            width: 80px; height: 110px; background: rgba(255, 180, 0, 0.9);
+            border-radius: 15px 15px 5px 5px; box-shadow: 0 0 50px #ff4500;
+        }
+        .lantern-wire { width: 2px; height: 30px; background: #ffd700; }
+        .wish-star {
+            background: #fff; color: #8b4513; padding: 8px 15px; border-radius: 20px;
+            font-weight: bold; font-size: 14px; box-shadow: 0 0 20px #fff, 0 0 40px #ffd700;
+        }
+
+        /* 结尾文字 */
+        #final-msg { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; width: 90%; opacity: 0; z-index: 1000;
+            color: #fff; text-shadow: 0 0 15px #87ceeb; font-size: 1.4rem; line-height: 2;
+        }
+        .hide { display: none !important; }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas"></canvas>
+<div id="bg-city"></div>
+<div id="bg-galaxy"></div>
 
-    <div id="step1" class="ui-layer">
-        <div class="card">
-            <h2>🧧 2026 见信如晤</h2>
-            <input type="text" id="surname" placeholder="请输入您的姓氏">
-            <select id="relation">
-                <option value="">请选择我们的关系</option>
-                <option value="同学">同学</option>
-                <option value="朋友">朋友</option>
-                <option value="老师">老师</option>
-                <option value="亲人">亲人</option>
-            </select>
-            <button onclick="toStep2()">开启惊喜</button>
-        </div>
+<div id="step1" class="ui-layer">
+    <div class="card">
+        <h2 style="margin:0 0 10px 0;">🏮 2026 祈愿</h2>
+        <input type="text" id="surname" placeholder="请输入您的姓氏" autocomplete="off">
+        <select id="relation">
+            <option value="">请选择我们的关系</option>
+            <option value="同学">同学</option>
+            <option value="朋友">朋友</option>
+            <option value="老师">老师</option>
+            <option value="亲人">亲人</option>
+        </select>
+        <button onclick="toStep2()">开启惊喜</button>
     </div>
+</div>
 
-    <div id="step2" class="ui-layer hide">
-        <div class="card">
-            <h2 id="greeting-title"></h2>
-            <p id="greeting-content" style="line-height: 1.6;"></p>
-            <hr style="border: 0.5px solid #f1c40f; margin: 20px 0;">
-            <p>在新的一年，许下一个愿望吧：</p>
-            <input type="text" id="user-wish" placeholder="输入你的愿望...">
-            <button onclick="startAnimation()">放飞愿望</button>
-        </div>
+<div id="step2" class="ui-layer hide">
+    <div class="card">
+        <h3 id="greeting-title"></h3>
+        <p id="greeting-content" style="text-align:left; line-height:1.6;"></p>
+        <input type="text" id="user-wish" placeholder="输入愿望，挂在灯下" autocomplete="off">
+        <button onclick="startAnimation()">放飞天灯</button>
     </div>
+</div>
 
-    <div id="wish-text"></div>
+<div id="user-lantern-container">
+    <div class="lantern-body"></div>
+    <div class="lantern-wire"></div>
+    <div id="wish-star-text" class="wish-star"></div>
+</div>
 
-    <div id="final-msg">
-        <p>愿你与世间所有好运，不期而遇，所愿皆成真。</p>
-        <p style="font-size: 1rem; color: #c0392b;">🐎 2026 马到成功</p>
-    </div>
+<div id="final-msg">
+    <p>愿你与世间所有好运，<br>不期而遇，所愿皆成真。</p>
+    <p style="font-size: 1.1rem; color: #ffd700;">✨ 2026 万事顺心 ✨</p>
+</div>
 
-    <script>
-        // --- 核心配置 ---
-        // 如果你想收到愿望，请去 formspree.io 注册并替换下面的 ID
-        const FORMSPREE_ID = "YOUR_ID_HERE"; 
+<script>
+    // 请在此填入你的 Formspree ID 以接收愿望
+    const FORMSPREE_ID = ""; 
 
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [], stars = [];
+    function toStep2() {
+        const sn = document.getElementById('surname').value.trim();
+        const rel = document.getElementById('relation').value;
+        if(!sn || !rel) return alert("请先填写完整哦~");
 
-        function initCanvas() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', initCanvas);
-        initCanvas();
+        const title = document.getElementById('greeting-title');
+        const content = document.getElementById('greeting-content');
 
-        function toStep2() {
-            const surname = document.getElementById('surname').value;
-            const relation = document.getElementById('relation').value;
-            if(!surname || !relation) return alert("请填写完整信息信息哦~");
-
-            const content = document.getElementById('greeting-content');
-            const title = document.getElementById('greeting-title');
-
-            if(relation === "同学") {
-                title.innerText = `${surname}同学：`;
-                content.innerText = "山高水远，同窗情谊不减。祝你丙午年如骏马驰骋，前程广阔，常回青春里看看，也祝你万事顺意，阖家幸福。";
-            } else if(relation === "老师") {
-                title.innerText = `${surname}老师：`;
-                content.innerText = "教诲如春风，师恩深似海。愿您新的一年身体健康，万事顺意，阖家幸福。";
-            } else if(relation === "朋友") {
-                content.innerText = "即使不常见面，也知你活得滚烫。愿你新岁继续策马扬鞭，自由坦荡，万事顺意，阖家幸福。";
-            } else {
-                content.innerText = "愿您新春身体硬朗，心中无事，眉间无霜，日日是好日，万事顺意，阖家幸福。";
-            }
-
-            document.getElementById('step1').classList.add('hide');
-            setTimeout(() => {
-                document.getElementById('step1').style.display = 'none';
-                document.getElementById('step2').classList.remove('hide');
-            }, 1000);
+        // 根据你的要求设置的4条精准祝福语
+        if(rel === "同学") {
+            title.innerText = `${sn}同学：`;
+            content.innerText = "山高水远，同窗情谊不减。祝你丙午年如骏马驰骋，前程广阔，常回青春里看看，也祝你万事顺意，阖家幸福。";
+        } else if(rel === "老师") {
+            title.innerText = `${sn}老师：`;
+            content.innerText = "教诲如春风，师恩深似海。愿您新的一年身体健康，万事顺意，阖家幸福。";
+        } else if(rel === "朋友") {
+            title.innerText = `${sn}：`;
+            content.innerText = "即使不常见面，也知你活得滚烫。愿你新岁继续策马扬鞭，自由坦荡，万事顺意，阖家幸福。";
+        } else {
+            title.innerText = `致 ${sn}家亲长：`;
+            content.innerText = "愿您新春身体硬朗，心中无事，眉间无霜，日日是好日，万事顺意，阖家幸福。";
         }
 
-        function startAnimation() {
-            const wish = document.getElementById('user-wish').value;
-            if(!wish) return alert("请先写下愿望吧~");
+        document.getElementById('step1').classList.add('hide');
+        document.getElementById('step2').classList.remove('hide');
+    }
 
-            // 后台发送数据（Formspree）
-            if(FORMSPREE_ID !== "YOUR_ID_HERE") {
-                fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        name: document.getElementById('surname').value,
-                        relation: document.getElementById('relation').value,
-                        wish: wish
-                    }),
-                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
-                });
-            }
+    function startAnimation() {
+        const wish = document.getElementById('user-wish').value.trim();
+        if(!wish) return alert("写下你的愿望吧~");
 
-            document.getElementById('step2').classList.add('hide');
-            const wishEl = document.getElementById('wish-text');
-            wishEl.innerText = wish;
-            wishEl.style.opacity = 1;
-            wishEl.style.top = '80%';
-            
-            let y = 80;
-            const interval = setInterval(() => {
-                y -= 0.5;
-                wishEl.style.top = y + '%';
-                wishEl.style.fontSize = (1.2 * (y/80)) + 'rem';
-                wishEl.style.opacity = y/80;
-                
-                // 模拟孔明灯微光效果
-                createLanternParticle();
-
-                if(y < 20) {
-                    clearInterval(interval);
-                    wishEl.style.opacity = 0;
-                    explodeToStars();
-                }
-            }, 30);
-        }
-
-        function createLanternParticle() {
-            for(let i=0; i<2; i++) {
-                particles.push({
-                    x: width/2 + (Math.random()-0.5)*50,
-                    y: height * 0.7,
-                    vx: (Math.random()-0.5)*2,
-                    vy: -Math.random()*3 - 2,
-                    alpha: 1,
-                    color: '#f39c12'
-                });
-            }
-        }
-
-        function explodeToStars() {
-            for(let i=0; i<150; i++) {
-                stars.push({
-                    x: width/2,
-                    y: height * 0.2,
-                    vx: (Math.random()-0.5)*15,
-                    vy: (Math.random()-0.5)*15,
-                    radius: Math.random()*2,
-                    alpha: 1
-                });
-            }
-            setTimeout(() => {
-                document.getElementById('final-msg').style.opacity = 1;
-            }, 1000);
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.fillStyle = 'rgba(10, 10, 10, 0.2)';
-            ctx.fillRect(0, 0, width, height);
-
-            // 绘制粒子（孔明灯火花）
-            particles.forEach((p, i) => {
-                p.y += p.vy; p.x += p.vx; p.alpha -= 0.02;
-                if(p.alpha <=0) particles.splice(i, 1);
-                ctx.fillStyle = `rgba(243, 156, 18, ${p.alpha})`;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
-            });
-
-            // 绘制星河
-            stars.forEach((s, i) => {
-                s.x += s.vx; s.y += s.vy; s.vx *= 0.98; s.vy *= 0.98;
-                if(Math.abs(s.vx) < 0.1) {
-                    s.vx = (Math.random()-0.5)*0.5;
-                    s.vy = (Math.random()-0.5)*0.5;
-                }
-                ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
-                ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2); ctx.fill();
+        // 发送愿望数据
+        if(FORMSPREE_ID) {
+            fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ surname: document.getElementById('surname').value, wish: wish })
             });
         }
-        animate();
-    </script>
+
+        document.getElementById('step2').classList.add('hide');
+        document.getElementById('wish-star-text').innerText = wish;
+        
+        // 动画序列：孔明灯升空 -> 背景切换 -> 文字浮现
+        const lantern = document.getElementById('user-lantern-container');
+        setTimeout(() => {
+            lantern.style.bottom = "120%"; // 飞向天空
+            document.getElementById('bg-city').style.opacity = "0"; // 切换到星河
+            document.getElementById('bg-galaxy').style.opacity = "1";
+        }, 500);
+
+        setTimeout(() => {
+            document.getElementById('final-msg').style.opacity = "1";
+        }, 4000);
+    }
+</script>
 </body>
 </html>
